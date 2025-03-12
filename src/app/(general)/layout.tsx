@@ -1,4 +1,4 @@
-import ProviderEventos from "../Provider/providerEventos";
+import ProviderEventos from "../Provider/providerUsuarios";
 
 export default function NameLayout({
   children,
@@ -6,8 +6,9 @@ export default function NameLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
-      <ProviderEventos>{children}</ProviderEventos>
-    </>
+    <div>
+      <h1>Usuario</h1>
+      {children}
+    </div>
   );
 }
