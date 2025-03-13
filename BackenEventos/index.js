@@ -1,4 +1,3 @@
-
 const express= require('express')
 const cors= require('cors')
 
@@ -261,8 +260,6 @@ app.listen(5000, ()=>{
 })
 
 
-
-
 /*
 //posiblemente esta demás
 app.put('/eventos/eliminar/:id', async (req, res) => {
@@ -310,6 +307,6 @@ app.put('/cotizaciones/rechazar/:id', async (req, res) => {
     }
 });
 
-
+console.log("Servidor funcionando") 
 
 */
