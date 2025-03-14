@@ -72,3 +72,4 @@ select * from confirmaciones;
 select * from cotizaciones;
 
 
+delete from usuarios where id_usuario=1;

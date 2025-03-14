@@ -85,19 +85,44 @@ app.post('/eventos', async (req, res) => {
 });
 
 app.put('/eventos/:id', async (req, res) => {
-
     try {
-        const [updated] = await Evento.update(req.body, {
-            where: { id_evento: req.params.id } });
+        const { nombre, fecha_hora, ubicacion } = req.body;
+        const { id } = req.params;
 
-        updated ? res.status(200).json({ 'mensaje': 'Evento actualizado' }) :
-            res.status(400).json({ 'mensaje': 'Evento no encontrado' });
+        const [updated] = await Evento.update(
+            { nombre, fecha_hora, ubicacion },
+            { where: { id_evento: id } }
+        );
+
+        updated
+            ? res.status(200).json({ mensaje: 'Evento actualizado correctamente' })
+            : res.status(400).json({ mensaje: 'Evento no encontrado' });
 
     } catch (error) {
-        res.status(500).json({ 'mensaje': 'Ocurrió un error' });
+        res.status(500).json({ mensaje: 'Error en la actualización', error });
     }
 });
 
+//no llega el id dle frontend
+app.put('/eventos/eliminar/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        console.log("ID recibido en el backend para inactivar:", id);
+
+        const [updated] = await Evento.update(
+            { estado: "inactivo" },
+            { where: { id_evento: id } }
+        );
+
+        updated
+            ? res.status(200).json({ mensaje: 'Evento inactivado correctamente' })
+            : res.status(400).json({ mensaje: 'Evento no encontrado' });
+
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al inactivar el evento', error });
+    }
+});
 
 //RUTAS TAREAS, falta revisar
 
