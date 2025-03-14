@@ -2,8 +2,8 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
-import { eventosContext } from "./Context/usuariosContext";
-import { useEventosContext } from "./Provider/providerUsuarios";
+import { eventosContext } from "./Context/eventosContext";
+import { useEventosContext } from "./Provider/providerEventos";
 
 export default function Home() {
     

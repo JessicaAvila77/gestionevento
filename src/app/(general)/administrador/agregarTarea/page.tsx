@@ -1,10 +1,10 @@
 'use client'
-import { tareaContext } from '@/Context/tareaContext'
-import { Tarea } from '@/Modelos/Tareas'
-import { usetareasContext } from '@/Provider/providerTareas'
+import { tareaContext } from '@/Context/tareaContext';
+import { Tarea } from '@/Models/Tarea';
+import { usetareasContext } from '@/Provider/tareaProvider';
 import React, { useState } from 'react'
 
-export default function Page() {
+export default function page() {
 
     const { Tareas, agregarTarea, eliminarTarea } = usetareasContext()
 

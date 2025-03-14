@@ -1,13 +1,13 @@
 'use client'
 import React, { ReactNode, useContext, useState } from 'react'
 import { Usuarios } from '../Models/Usuarios'
-import { usuariosContext } from '../Context/usuariosContext';
+import { eventosContext } from '../Context/eventosContext';
 
 interface NodeReact{
     children : ReactNode
 }
 
-export default function providerUsuarios({children} : NodeReact) {
+export default function providerEventos({children} : NodeReact) {
 
     const [usuario, setUsuario] = useState<Usuarios | null>(null);
 
@@ -18,18 +18,18 @@ export default function providerUsuarios({children} : NodeReact) {
 
 
   return (
-    <usuariosContext.Provider value={{
+    <eventosContext.Provider value={{
         usuario,
         setUsuario,
         cerrarSesion
     }}> 
 
         {children}
-    </usuariosContext.Provider>
+    </eventosContext.Provider>
     
   )
 }
 
-export function useusuariosContext(){
-    return useContext(usuariosContext)
+export function useEventosContext(){
+    return useContext(eventosContext)
 }
