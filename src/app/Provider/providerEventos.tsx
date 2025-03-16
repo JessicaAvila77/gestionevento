@@ -4,6 +4,8 @@ import { Usuarios } from '../Models/Usuarios'
 import { eventosContext } from '../Context/eventosContext';
 import { Eventos } from '../Models/Eventos';
 import { Tareas } from '../Models/Tareas';
+import { Presupuesto } from '../Models/Presupuesto';
+import { Cotizacion } from '../Models/Cotizacion';
 
 interface NodeReact{
     children : ReactNode
@@ -23,19 +25,43 @@ export default function providerEventos({children} : NodeReact) {
     const [estadoTarea, setEstadoTarea] = useState<"pendiente" | "completada">("pendiente");
     const [idEvento, setIdEvento] = useState(0);
 
+    const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([]);
+    const [idPresupuesto, setIdPresupuesto] = useState(0);
+    const [partida, setPartida] = useState("");
+    const [estimado, setEstimado] = useState(0);
+
+    const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([]);
+    const [nombreEvento, setNombreEvento] = useState("");
+    const [detalles, setDetalles] = useState("");
+
+
 
 
     useEffect(() => {
         cargarEventos();
         //cargarTareas();
+
+        const usuarioGuardado = sessionStorage.getItem("usuario");
+        if (usuarioGuardado) {
+            setUsuario(JSON.parse(usuarioGuardado));
+        }
+
     }, []);
+
+    function guardarUsuario(user: Usuarios) {
+        console.log("Guardando usuario:", user);
+        sessionStorage.setItem("usuario", JSON.stringify(user)); 
+        setUsuario(user);
+    }
+
+
 
     //CRUD EVENTOS
     async function cargarEventos() {
         try {
             const res = await fetch("http://localhost:5000/eventos");
             const data = await res.json();
-            setEventos(data);
+            setEventos(data.filter((evento: Eventos) => evento.estado === "activo"));
         } catch (err) {
             console.error("Error al obtener eventos:", err);
         }
@@ -104,6 +130,7 @@ export default function providerEventos({children} : NodeReact) {
     }
 
     function cerrarSesion() {
+        sessionStorage.removeItem("usuario");
         setUsuario(null);
     }
 
@@ -160,22 +187,138 @@ export default function providerEventos({children} : NodeReact) {
         }
     }
 
+//PRESUPUESTO
+
+async function cargarPresupuestos(eventoId: number) {
+    try {
+        const res = await fetch(`http://localhost:5000/presupuesto/${eventoId}`);
+        const data = await res.json();
+        setPresupuestos(data);
+    } catch (err) {
+        console.error("Error al obtener presupuestos:", err);
+    }
+}
+
+async function agregarPresupuesto(nuevoPresupuesto: Presupuesto) {
+    try {
+        await fetch("http://localhost:5000/presupuesto", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(nuevoPresupuesto)
+        });
+
+        cargarPresupuestos(nuevoPresupuesto.id_evento);
+    } catch (err) {
+        console.error("Error al agregar presupuesto:", err);
+    }
+}
+
+async function actualizarPresupuesto(id: number, presupuestoActualizado: Presupuesto) {
+    try {
+        await fetch(`http://localhost:5000/presupuesto/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(presupuestoActualizado)
+        });
+
+        cargarPresupuestos(presupuestoActualizado.id_evento);
+    } catch (err) {
+        console.error("Error al actualizar presupuesto:", err);
+    }
+}
+
+async function eliminarPresupuesto(id: number, eventoId: number) {
+    try {
+        await fetch(`http://localhost:5000/presupuesto/${id}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" }
+        });
+
+        cargarPresupuestos(eventoId);
+    } catch (err) {
+        console.error("Error al eliminar presupuesto:", err);
+    }
+}
+
+//FUNCIONALIDADES USUARIO
+
+async function confirmarAsistencia(id_evento: number) {
+    if (!usuario) {
+        console.error("Error: No hay usuario en sesión.");
+        alert("Debe iniciar sesión para confirmar asistencia.");
+        return;
+    }
+
+    try {
+        const res = await fetch("http://localhost:5000/confirmaciones", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id_usuario: usuario.id_usuario, id_evento }),
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json();
+            alert(errorData.mensaje || "Error al confirmar asistencia.");
+            return;
+        }
+
+        alert("Asistencia confirmada con éxito.");
+        cargarEventos(); 
+    } catch (err) {
+        console.error("Error al confirmar asistencia:", err);
+    }
+}
+/*
+async function cargarCotizaciones() {
+    try {
+        const res = await fetch("http://localhost:5000/cotizaciones");
+        const data = await res.json();
+        setCotizaciones(data);
+    } catch (error) {
+        console.error("Error al cargar cotizaciones:", error);
+    }
+}
+*/
+
+async function cargarCotizaciones(id_usuario: number) {
+    try {
+        const res = await fetch(`http://localhost:5000/cotizaciones`);
+        const data = await res.json();
+        setCotizaciones(data.filter((cotizacion: Cotizacion) => cotizacion.id_usuario === id_usuario));
+    } catch (err) {
+        console.error("Error al obtener cotizaciones:", err);
+    }
+} 
+
+// Solicitar una cotización
+async function solicitarCotizacion(cotizacion: Cotizacion) {
+    try {
+        await fetch("http://localhost:5000/cotizaciones", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({cotizacion}),
+        });
+        cargarCotizaciones(cotizacion.id_usuario); 
+    } catch (err) {
+        console.error("Error al solicitar cotización:", err);
+    }
+}
 
 
 
   return (
     <eventosContext.Provider value={{
-        usuario,
-        setUsuario,
-        cerrarSesion,
-        eventos,
-        setEventos,
-        agregarEvento,
-        actualizarEvento,
-        eliminarEvento,
-        restaurarEvento,
-        cargarEventos,
-        tareas,
+                usuario,
+                setUsuario,
+                cerrarSesion,
+                eventos,
+                setEventos,
+                agregarEvento,
+                actualizarEvento,
+                eliminarEvento,
+                restaurarEvento,
+                cargarEventos,
+                tareas,
                 setTareas,
                 agregarTarea,
                 actualizarTarea,
@@ -185,7 +328,23 @@ export default function providerEventos({children} : NodeReact) {
                 nombreTarea, setNombreTarea,
                 responsable, setResponsable,
                 estadoTarea, setEstadoTarea,
-                idEvento, setIdEvento
+                idEvento, setIdEvento,
+                presupuestos, setPresupuestos,
+                agregarPresupuesto, actualizarPresupuesto, eliminarPresupuesto, cargarPresupuestos,
+                idPresupuesto, setIdPresupuesto,
+                partida, setPartida,
+                estimado, setEstimado,
+                confirmarAsistencia,
+                cotizaciones,
+                setCotizaciones,
+                cargarCotizaciones,
+                solicitarCotizacion,guardarUsuario,
+                nombreEvento,
+                setNombreEvento,
+                detalles,
+                setDetalles,
+
+                
     }}> 
 
         {children}

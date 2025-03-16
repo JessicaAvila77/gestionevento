@@ -1,73 +1,86 @@
 "use client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { eventosContext } from "./Context/eventosContext";
 import { useEventosContext } from "./Provider/providerEventos";
 
 export default function Home() {
-    
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { setUsuario } = useEventosContext();
+  const {usuario, setUsuario, guardarUsuario } = useEventosContext();
 
   const [error, setError] = useState("");
   const router = useRouter();
 
-  function iniciarSesion() {
+  async function iniciarSesion() {
     setError("");
 
-    fetch("http://localhost:5000/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.mensaje) {
-          setError("Credenciales incorrectas");
-          return;
-        }
+    try {
+      const res = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-        setUsuario(data);
+      const data = await res.json();
 
-        router.push(
-          data.rol === "admin"
-            ? "/administrador"
-            : "/usuario"
-        );
-      })
-      .catch(() => setError("Error al conectar con el servidor"));
+      if (!res.ok || data.mensaje) {
+        setError("Credenciales incorrectas");
+        return;
+      }
+
+      console.log("Usuario autenticado:", data);
+
+     // setUsuario(data);
+     guardarUsuario({
+      id_usuario: data.id_usuario,
+      nombre: data.nombre,
+      email: data.email,
+      rol: data.rol,
+      });
+
+      setUsuario({
+        id_usuario: data.id_usuario,
+        nombre: data.nombre,
+        email: data.email,
+        rol: data.rol,
+      });
+
+      router.push(data.rol === "admin" ? "/administrador" : "/usuario");
+
+    } catch (error) {
+      setError("Error al conectar con el servidor");
+    }
   }
 
   return (
-    <div className="grid place-items-center h-screen">
-      <main className="flex flex-col gap-4">
-
-       <h1>Gestión de Eventos</h1>
-        <h2>Inicio de Sesión</h2>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <input
-          type="email"
-          placeholder="Correo Electrónico"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="p-2 border rounded"
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="p-2 border rounded"
-        />
-        <button
-          onClick={iniciarSesion}
-          className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Iniciar Sesión
-        </button>
-      </main>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+        <main className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+            <h2 className="text-center text-2xl font-bold mb-4">Inicio de Sesión</h2>
+            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+            
+            <input
+                type="email"
+                placeholder="Correo Electrónico"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-2 border rounded mb-3"
+            />
+            <input
+                type="password"
+                placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-2 border rounded mb-3"
+            />
+            <button 
+                onClick={iniciarSesion} 
+                className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+            >
+                Iniciar Sesión
+            </button>
+        </main>
     </div>
   );
 }

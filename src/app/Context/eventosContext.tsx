@@ -2,6 +2,8 @@ import { createContext } from "react";
 import { Usuarios} from "../Models/Usuarios"
 import { Eventos } from "../Models/Eventos";
 import { Tareas } from "../Models/Tareas";
+import { Presupuesto } from "../Models/Presupuesto";
+import { Cotizacion } from "../Models/Cotizacion";
 
 
 export const eventosContext = createContext({
@@ -46,15 +48,39 @@ export const eventosContext = createContext({
     estadoTarea: "pendiente" as "pendiente" | "completada",
     setEstadoTarea: (estado: "pendiente" | "completada") => {},
     idEvento: 0,
-    setIdEvento: (id: number) => {}
+    setIdEvento: (id: number) => {},
 
+    //PRESUPUESTO
 
+    presupuestos: [] as Presupuesto[],
+    setPresupuestos: (presupuestos: Presupuesto[]) => {},
 
+    agregarPresupuesto: (presupuesto: Presupuesto) => {},
+    actualizarPresupuesto: (id: number, presupuesto: Presupuesto) => {},
+    eliminarPresupuesto: (id: number, eventoId: number) => {},
+    cargarPresupuestos: (eventoId: number) => {},
 
+    idPresupuesto: 0,
+    setIdPresupuesto: (id: number) => {},
+    partida: "",
+    setPartida: (partida: string) => {},
+    estimado: 0,
+    setEstimado: (estimado: number) => {},
 
+    //funciones de USUARIO
 
+    guardarUsuario: (usuario: Usuarios) => {},
 
-
+    confirmarAsistencia: (id_evento: number) => {},
+    
+    cotizaciones: [] as Cotizacion[],
+    setCotizaciones: (cotizaciones: Cotizacion[]) => {},
+    cargarCotizaciones: (id_usuario: number) => {},
+    solicitarCotizacion: (cotizacion: Cotizacion) => {},
+    nombreEvento: "",
+    setNombreEvento: (nombre: string) => {},
+    detalles: "",
+    setDetalles: (detalles: string) => {},
 
 
 

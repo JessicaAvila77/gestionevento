@@ -81,7 +81,7 @@ export default function page() {
 }
 
   return (
-    <div className="p-6">
+    <div className="container">
       <h1 className="text-2xl font-bold mb-4">Gestión de Eventos</h1>
 
       <div className="mb-4 flex flex-col gap-2">
