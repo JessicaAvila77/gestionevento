@@ -15,6 +15,7 @@ export default function providerEventos({children} : NodeReact) {
 
     const [usuario, setUsuario] = useState<Usuarios | null>(null);
     const [eventos, setEventos] = useState<Eventos[]>([]);
+    const [loading, setLoading] = useState(true); // Estado para controlar carga
 
     const [tareas, setTareas] = useState<Tareas[]>([]);
     
@@ -41,16 +42,17 @@ export default function providerEventos({children} : NodeReact) {
         cargarEventos();
         //cargarTareas();
 
-        const usuarioGuardado = sessionStorage.getItem("usuario");
+        const usuarioGuardado = localStorage.getItem("usuario");
         if (usuarioGuardado) {
             setUsuario(JSON.parse(usuarioGuardado));
         }
+        setLoading(false); // Terminó de cargar
 
     }, []);
 
     function guardarUsuario(user: Usuarios) {
         console.log("Guardando usuario:", user);
-        sessionStorage.setItem("usuario", JSON.stringify(user)); 
+        localStorage.setItem("usuario", JSON.stringify(user)); 
         setUsuario(user);
     }
 
@@ -130,7 +132,7 @@ export default function providerEventos({children} : NodeReact) {
     }
 
     function cerrarSesion() {
-        sessionStorage.removeItem("usuario");
+        localStorage.removeItem("usuario");
         setUsuario(null);
     }
 
@@ -268,17 +270,6 @@ async function confirmarAsistencia(id_evento: number) {
         console.error("Error al confirmar asistencia:", err);
     }
 }
-/*
-async function cargarCotizaciones() {
-    try {
-        const res = await fetch("http://localhost:5000/cotizaciones");
-        const data = await res.json();
-        setCotizaciones(data);
-    } catch (error) {
-        console.error("Error al cargar cotizaciones:", error);
-    }
-}
-*/
 
 async function cargarCotizaciones(id_usuario: number) {
     try {
@@ -293,18 +284,24 @@ async function cargarCotizaciones(id_usuario: number) {
 // Solicitar una cotización
 async function solicitarCotizacion(cotizacion: Cotizacion) {
     try {
-        await fetch("http://localhost:5000/cotizaciones", {
+        const res = await fetch("http://localhost:5000/cotizaciones", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({cotizacion}),
+            body: JSON.stringify(cotizacion),
         });
-        cargarCotizaciones(cotizacion.id_usuario); 
+
+        if (!res.ok) {
+            const errorData = await res.json();
+            alert(errorData.mensaje || "Error al solicitar cotización.");
+            return;
+        }
+
+        // Cargar cotizaciones después de crear una nueva
+        cargarCotizaciones(cotizacion.id_usuario);
     } catch (err) {
         console.error("Error al solicitar cotización:", err);
     }
 }
-
-
 
   return (
     <eventosContext.Provider value={{
@@ -343,7 +340,7 @@ async function solicitarCotizacion(cotizacion: Cotizacion) {
                 setNombreEvento,
                 detalles,
                 setDetalles,
-
+                loading,
                 
     }}> 
 

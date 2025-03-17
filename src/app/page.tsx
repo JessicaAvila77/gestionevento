@@ -8,7 +8,7 @@ import { useEventosContext } from "./Provider/providerEventos";
 export default function Home() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const {usuario, setUsuario, guardarUsuario } = useEventosContext();
+  const {usuario, guardarUsuario } = useEventosContext();
 
   const [error, setError] = useState("");
   const router = useRouter();
@@ -40,12 +40,12 @@ export default function Home() {
       rol: data.rol,
       });
 
-      setUsuario({
+     /* setUsuario({
         id_usuario: data.id_usuario,
         nombre: data.nombre,
         email: data.email,
         rol: data.rol,
-      });
+      });*/
 
       router.push(data.rol === "admin" ? "/administrador" : "/usuario");
 

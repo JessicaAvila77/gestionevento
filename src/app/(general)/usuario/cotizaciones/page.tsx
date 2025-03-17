@@ -27,7 +27,7 @@ export default function page() {
     solicitarCotizacion({
       id_cotizacion: 0,
       nombre_evento: nombreEvento,
-      detalles,
+      detalles: detalles,
       estado: "pendiente",
       id_usuario: usuario.id_usuario,
     });

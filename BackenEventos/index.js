@@ -54,14 +54,27 @@ app.get('/usuarios', async (req, res) => {
     }
 });
 
+// Ruta para crear un nuevo usuario
 app.post('/usuarios', async (req, res) => {
     try {
-        const usuario = await Usuario.create(req.body);
-        res.status(201).json(usuario);
+        const { nombre, email, password, rol } = req.body;
+
+        // Hashear la contraseña antes de guardarla
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const nuevoUsuario = await Usuario.create({
+            nombre,
+            email,
+            password: hashedPassword,
+            rol
+        });
+
+        res.status(201).json(nuevoUsuario);
     } catch (error) {
-        res.status(500).json({ 'mensaje': 'Ocurrió un error' });
+        console.error(error);
+        res.status(500).json({ mensaje: 'Error al crear usuario' });
     }
-});
+}); 
 
 
 //RUTAS EVENTOS, no construiremos el metodo delete por que lo manejamos con activo/inactivo
@@ -244,14 +257,29 @@ app.get('/confirmaciones/evento/:eventoId', async (req, res) => {
 //COTIZACIONES
 
 //Un usuario solicita una cotización
-app.post('/cotizaciones', async (req, res) => {
-    try {
-        const cotizacion = await Cotizacion.create(req.body);
-        res.status(201).json(cotizacion);
-    } catch (error) {
-        res.status(500).json({ 'mensaje': 'Ocurrió un error' });
-    }
-});
+app.post('/cotizaciones', async (req, res) => {  
+    const { nombre_evento, detalles, estado, id_usuario } = req.body;  
+
+    if (!nombre_evento || !detalles || !id_usuario) {  
+        return res.status(400).json({ mensaje: 'Faltan parámetros obligatorios.' });  
+    }  
+    
+    // Realiza la inserción de datos  
+    const query = 'INSERT INTO cotizaciones (nombre_evento, detalles, estado, id_usuario) VALUES (?, ?, ?, ?)';  
+    try {  
+        const result = await db.query(query, [nombre_evento, detalles, estado, id_usuario]);  
+        res.status(201).json({  
+            id_cotizacion: result.insertId,  
+            nombre_evento,  
+            detalles,  
+            estado,  
+            id_usuario,  
+        });  
+    } catch (error) {  
+        console.error("Error al insertar la cotización:", error);  
+        res.status(500).json({ mensaje: 'Error al crear cotización.' });  
+    }  
+});  
 
 //cotizaciones recibidas por el administrador
 app.get('/cotizaciones', async (req, res) => {
@@ -262,6 +290,8 @@ app.get('/cotizaciones', async (req, res) => {
         res.status(500).json({ 'mensaje': 'Ocurrió un error' });
     }
 });
+
+console.log("Solicitud de cotización enviada:", cotizacion);  
 
 //el administrador aprueba o rechaza
 app.put('/cotizaciones/:id', async (req, res) => {

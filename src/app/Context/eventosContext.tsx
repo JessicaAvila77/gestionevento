@@ -82,6 +82,6 @@ export const eventosContext = createContext({
     detalles: "",
     setDetalles: (detalles: string) => {},
 
-
+    loading: true,
 
 })

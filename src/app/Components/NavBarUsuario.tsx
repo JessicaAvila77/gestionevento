@@ -1,10 +1,11 @@
 'use client'
-import Link from "next/link";
-import React from "react";
-import { useEventosContext } from "../Provider/providerEventos";
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
+import React from 'react'
+import { useEventosContext } from '../Provider/providerEventos';
+import Link from 'next/link';
 
 export default function NavBarUsuario() {
+  
   const { usuario, cerrarSesion } = useEventosContext();
   const router = useRouter();
 

@@ -3,25 +3,34 @@
 import { useEventosContext } from "@/app/Provider/providerEventos";
 import React, { useEffect } from "react";
 
-export default function page() {
-  const { usuario, cerrarSesion, eventos, confirmarAsistencia, cargarEventos } = useEventosContext();
-
-  console.log("🔍 Usuario en eventosActivos:", usuario);
+export default function PageEventosActivos() {
+  const {
+    usuario,
+    eventos,
+    confirmarAsistencia,
+    cargarEventos,
+    loading,
+  } = useEventosContext();
 
   useEffect(() => {
     cargarEventos();
   }, []);
 
   function ConfirmarAsistencia(id_evento: number) {
-    
     if (!usuario) {
       alert("Debe iniciar sesión para confirmar asistencia.");
       return;
     }
 
-    console.log(`Usuario ${usuario.nombre} (${usuario.id_usuario}) confirmando asistencia al evento ${id_evento}`);
-
     confirmarAsistencia(id_evento);
+  }
+
+  if (loading) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-lg">Cargando datos...</p>
+      </div>
+    );
   }
 
   return (
@@ -38,10 +47,10 @@ export default function page() {
             {eventos.map((evento) => (
               <li
                 key={evento.id_evento}
-                className="border p-2 flex justify-between items-center"
+                className="border p-2 flex justify-between items-center mb-2"
               >
                 <span>
-                  {evento.nombre} -{" "}
+                  {evento.nombre} - {" "}
                   {new Date(evento.fecha_hora).toLocaleString()}
                 </span>
                 <button
