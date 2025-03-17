@@ -3,7 +3,7 @@
 import { useEventosContext } from "@/app/Provider/providerEventos";
 import React, { useEffect } from "react";
 
-export default function PageEventosActivos() {
+export default function Page() {
   const {
     usuario,
     eventos,
